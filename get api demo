@@ -1,0 +1,90 @@
+import 'dart:async';
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+void main() => runApp(new MaterialApp(
+      home: new HomePage(),
+    ));
+
+class HomePage extends StatefulWidget {
+  @override
+  HomePageState createState() => HomePageState();
+}
+
+class HomePageState extends State<HomePage> {
+  final String url ="enter api";
+  List data;
+
+  @override
+  void initState() {
+    super.initState();
+    this.getJsonData();
+  }
+
+  Future<String> getJsonData() async {
+    var response = await http
+        .get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
+    print(response.body);
+    setState(() {
+      var convertDataToJson = json.decode(response.body);
+      data = convertDataToJson['results'];
+    });
+    return "Success";
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text("Retrieve Json via HTTP Get"),
+        ),
+
+        body: new ListView.builder(
+            itemCount: data == null ? 0 : data.length,
+            itemBuilder: (BuildContext context, int index) {
+              return new Container(
+                height: 80.0,
+                child: new Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+
+                        Flexible(
+                          flex: 1,
+                          child: new Row(
+                              children: <Widget>[
+                                Flexible(
+                                  flex: 3,
+                                  child: Container(
+                                      width: double.infinity,
+                                      child: Text(data[index]['first_name'], textAlign: TextAlign.left,)),
+                                ),
+                               /*Flexible(
+                                  flex: 1,
+                                  child: Container(
+                                      width: double.infinity,
+                                      child: new Text(data[index]['gender'])),
+                                ),*/
+                              ],
+                            ),
+                          ),
+
+                        Flexible(
+                          flex: 1,
+                          child: Container(
+                            width: double.infinity,
+
+                            child: Text(data[index]['email']),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }));
+  }
+}
